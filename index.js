@@ -1,6 +1,6 @@
 const app = require("express")();
 const cors = require("cors");
-const zoomoptions = require("./zoominit");
+const zoomOptions = require("./zoominit");
 const rp = require("request-promise");
 /*
  init socket io
@@ -30,15 +30,15 @@ let connections = [];
 init our needed stuff
 logic will get refactored later but for now
 */
-let availablerooms = [];
-let currentroom;
+let availableRooms = [];
+let currentRoom;
 let counter = 0;
 
 app.get("/", (req, res) => {
   res.send("sanity check");
 });
 app.post("/getuserinfo", async (req, res) => {
-  const options = zoomoptions(req.body.email);
+  const options = zoomOptions(req.body.email);
   console.log(options);
   rp(options)
     .then(resp => {
@@ -52,17 +52,17 @@ io.on("connection", function (socket) {
   connections.push(socket);
   console.log(`socket connected! sockets remaining : ${connections.length}`);
   //  can be recieved on the front end by running socket.on("news",function(data){})
-  if (availablerooms.length > 0) {
+  if (availableRooms.length > 0) {
     // there is a available room to join in pop it and join in it
-    const roomicangoin = availablerooms.pop();
-    console.log(roomicangoin, "there is a available room");
-    socket.join(roomicangoin);
+    const roomICanGoIn = availableRooms.pop();
+    console.log(roomICanGoIn, "there is a available room");
+    socket.join(roomICanGoIn);
   } else {
     // make a new room and join in it if the available rooms array is empty
-    currentroom = `room${counter}`;
+    currentRoom = `room${counter}`;
     counter += 1;
-    availablerooms.push(currentroom);
-    socket.join(currentroom);
+    availableRooms.push(currentRoom);
+    socket.join(currentRoom);
   }
   /*
     add chat
@@ -73,17 +73,17 @@ io.on("connection", function (socket) {
   socket.on("disconnect", function () {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
-    const newconnections = connections.filter(
+    const newConnections = connections.filter(
       connection => connection != socket
     );
     // update the connections array with our new connections array!
-    connections = newconnections;
+    connections = newConnections;
     console.log(`socket disconected sockets remaining : ${connections.length}`);
     // disconnect the room!!!
-    const newavailablerooms = availablerooms.filter(
-      room => room != currentroom
+    const newAvailableRooms = availableRooms.filter(
+      room => room != currentRoom
     );
-    availablerooms = newavailablerooms;
+    availableRooms = newAvailableRooms;
   });
   socket.on('message', msg => {
     io.emit('message', msg)
