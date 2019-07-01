@@ -1,5 +1,4 @@
 const token = require("./jwt");
-const rp = require("request-promise");
 
 module.exports = email => {
   const options = {
@@ -17,17 +16,21 @@ module.exports = email => {
     },
     json: true //Parse the JSON string in the response
   };
-  rp(options)
-    .then(function(response) {
-      //printing the response on the console
-      console.log("User has", response);
-      //console.log(typeof response);
-      //Adding html to the page
-      return response;
-    })
-    .catch(function(err) {
-      // API call failed...
-      console.log("API call failed, reason ", err);
-      throw new Error(err);
-    });
+  return options;
+  // rp(options)
+  //   .then(function(response) {
+  //     //printing the response on the console
+  //     // console.log("User has", response);
+  //     console.log(typeof response);
+  //     //Adding html to the page
+  //     setTimeout(() => {console.log(res)},500)
+  //     // console.log(response, "zoom response");
+  //     return response;
+  //     // zoom_response = response;
+  //   })
+  //   .catch(function(err) {
+  //     // API call failed...
+  //     console.log("API call failed, reason ", err);
+  //     return new Error(err);
+  //   });
 };

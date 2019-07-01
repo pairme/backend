@@ -1,6 +1,7 @@
 const app = require("express")();
 const cors = require("cors");
-const zoominit = require("./zoominit");
+const zoomoptions = require("./zoominit");
+const rp = require("request-promise");
 /*
  init socket io
  note that app is still our express server
@@ -36,9 +37,14 @@ let counter = 0;
 app.get("/", (req, res) => {
   res.send("sanity check");
 });
-app.post("/getuserinfo", (req, res) => {
-  const response = zoominit(req.body.email);
-  res.send(response);
+app.post("/getuserinfo", async (req, res) => {
+  const options = zoomoptions(req.body.email);
+  console.log(options);
+  rp(options)
+    .then(resp => {
+      res.json({ response: resp });
+    })
+    .catch(err => res.json({ error: true }));
 });
 
 io.on("connection", function(socket) {
