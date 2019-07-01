@@ -47,12 +47,11 @@ app.post("/getuserinfo", async (req, res) => {
     .catch(err => res.json({ error: true }));
 });
 
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
   // push the socket to the connections array!
   connections.push(socket);
   console.log(`socket connected! sockets remaining : ${connections.length}`);
   //  can be recieved on the front end by running socket.on("news",function(data){})
-  //
   if (availablerooms.length > 0) {
     // there is a available room to join in pop it and join in it
     const roomicangoin = availablerooms.pop();
@@ -71,7 +70,7 @@ io.on("connection", function(socket) {
     before the
      disconnect function
    */
-  socket.on("disconnect", function() {
+  socket.on("disconnect", function () {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     const newconnections = connections.filter(
@@ -86,6 +85,9 @@ io.on("connection", function(socket) {
     );
     availablerooms = newavailablerooms;
   });
+  socket.on('message', msg => {
+    io.emit('message', msg)
+  })
 });
 
 /*
