@@ -59,7 +59,12 @@ io.on("connection", function(socket) {
     availablerooms.push(currentroom);
     socket.join(currentroom);
   }
-  socket.emit("news", { hello: "world" });
+  /*
+    add chat
+    functionality here
+    before the
+     disconnect function
+   */
   socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
