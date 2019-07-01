@@ -33,13 +33,12 @@ app.post("/getuserinfo", (req, res) => {
   res.send(response);
 });
 
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
   // push the socket to the connections array!
   connections.push(socket);
   console.log(`socket connected! sockets remaining : ${connections.length}`);
   //  can be recieved on the front end by running socket.on("news",function(data){})
-  socket.emit("news", { hello: "world" });
-  socket.on("disconnect", function() {
+  socket.on("disconnect", function () {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     const newconnections = connections.filter(
@@ -49,6 +48,9 @@ io.on("connection", function(socket) {
     connections = newconnections;
     console.log(`socket disconected sockets remaining : ${connections.length}`);
   });
+  socket.on('message', msg => {
+    io.emit('message', msg)
+  })
 });
 
 /*
