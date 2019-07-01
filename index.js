@@ -1,8 +1,6 @@
 const app = require("express")();
 const cors = require("cors");
-const token = require("./jwt");
-const rp = require("request-promise");
-
+const zoominit = require("./zoominit");
 /*
  init socket io
  note that app is still our express server
@@ -27,36 +25,12 @@ const port = process.env.PORT || 5000;
  websocket pop/filterto get connections */
 let connections = [];
 
-var email = "carlo.clamucha@gmail.com";
-var options = {
-  //You can use a different uri if you're making an API call to a different Zoom endpoint.
-  uri: "https://api.zoom.us/v2/users/" + email,
-  qs: {
-    status: "active"
-  },
-  auth: {
-    bearer: token
-  },
-  headers: {
-    "User-Agent": "Zoom-api-Jwt-Request",
-    "content-type": "application/json"
-  },
-  json: true //Parse the JSON string in the response
-};
-rp(options)
-  .then(function(response) {
-    //printing the response on the console
-    console.log("User has", response);
-    //console.log(typeof response);
-    //Adding html to the page
-  })
-  .catch(function(err) {
-    // API call failed...
-    console.log("API call failed, reason ", err);
-  });
-
 app.get("/", (req, res) => {
   res.send("sanity check");
+});
+app.post("/getuserinfo", (req, res) => {
+  const response = zoominit(req.body.email);
+  res.send(response);
 });
 
 io.on("connection", function(socket) {
