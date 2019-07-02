@@ -38,6 +38,26 @@ app.post("/getuserinfo", async (req, res) => {
     })
     .catch(err => res.json({ err }));
 });
+app.post("/makepair", (req, res) => {
+  /*
+  BODY KEYS
+  req.body.url
+  req.body.socketid
+  */
+  const [socket] = connections.filter(connection => {
+    req.body.socketid == connection.id;
+  });
+  let otherSocket = connections.pop();
+  if (socket == otherSocket) {
+    otherSocket = connections.shift();
+  }
+  const privatemessage = `Your meeting is ready at ${req.body.url}`;
+  io.to(`${socket.id}`).emit("private message", privatemessage);
+  io.to(`${otherSocket.id}`).emit("private message", privatemessage);
+  io.to(`${socket.id}`).emit("button disabled", true);
+  io.to(`${otherSocket.id}`).emit("button disabled", true);
+  res.json({ success: true });
+});
 
 io.on("connection", function(socket) {
   // push the socket to the connections array!
