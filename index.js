@@ -36,11 +36,12 @@ app.post("/makepair", (req, res) => {
   const [socket] = connections.filter(
     connection => connection.id == req.body.socketid
   );
-  let otherSocket = connections.pop();
-  if (socket == otherSocket) {
-    otherSocket = connections.shift();
-  }
-  const newconnections = connections.filter(connection => connection != socket);
+  connections = connections.filter(connection => connection != socket);
+  let otherSocket =
+    connections[Math.floor(Math.random() * connections.length) + 1];
+  const newconnections = connections.filter(
+    connection => connection != otherSocket
+  );
   connections = newconnections;
   const message = `Your pairing is ready * ${req.body.url} *`;
   const privatemessage = {
