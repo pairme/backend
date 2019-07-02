@@ -14,11 +14,7 @@ app.use(require("express").json());
 added cors and origin and credentials to be true
 so we dont get the CORS block on the frontend
  */
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"]
-  })
-);
+app.use(cors());
 const port = process.env.PORT || 5000;
 /*
  if something connects/disconnects  on our
