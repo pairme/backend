@@ -30,6 +30,7 @@ app.get("/", (req, res) => {
   res.send("sanity check");
 });
 app.post("/getuserinfo", async (req, res) => {
+  console.log(req.body.email, "sup dude");
   const options = zoomOptions(req.body.email);
   console.log(options);
   rp(options)
@@ -72,17 +73,18 @@ app.post("/makepair", (req, res) => {
 
 io.on("connection", function(socket) {
   // push the socket to the connections array!
-  connections.push(socket);
-  console.log(`socket connected! sockets remaining : ${connections.length}`);
-  console.log(socket.id, "backendsocketid");
   io.to(`${socket.id}`).emit("socketid", socket.id);
-  socket.emit("connections count", connections.length);
+  io.emit("connections count", connections.length);
   /*
-    add chat
-    functionality here
-    before the
-     disconnect function
-   */
+  add chat
+  functionality here
+  before the
+  disconnect function
+  */
+  socket.on("add connection", function(data) {
+    connections.push(socket);
+    console.log(`socket connected! sockets remaining : ${connections.length}`);
+  });
   socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
