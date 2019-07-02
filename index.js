@@ -33,8 +33,6 @@ app.post("/makepair", (req, res) => {
   req.body.url
   req.body.socketid
   */
-  console.log("debugging", req.body.socketid);
-  console.log(connections[0].id);
   const [socket] = connections.filter(
     connection => connection.id == req.body.socketid
   );
@@ -44,9 +42,7 @@ app.post("/makepair", (req, res) => {
   }
   const newconnections = connections.filter(connection => connection != socket);
   connections = newconnections;
-  const message = `Your meeting is ready at <a href="${req.body.url}">${
-    req.body.url
-  }</a> * this message is only seen by you *`;
+  const message = `Your pairing is ready * ${req.body.url} *`;
   const privatemessage = {
     message,
     id: Math.random()
@@ -55,7 +51,6 @@ app.post("/makepair", (req, res) => {
   io.to(`${otherSocket.id}`).emit("private message", privatemessage);
   io.to(`${socket.id}`).emit("button disabled", true);
   io.to(`${otherSocket.id}`).emit("button disabled", true);
-  console.log("DIDNT MESS UP!!");
   res.status(200).json({ success: true });
 });
 
@@ -74,11 +69,16 @@ io.on("connection", function(socket) {
     connections.push(socket);
 
     io.emit("connections count", connections.length);
+    io.emit("message", {
+      message: `${socket.chat_name} entered the chat`,
+      id: Math.random()
+    });
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
-  socket.on("disconnect", function() {
+  socket.on("disconnec", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
+    console.log(socket.chat_name, "this is the chat name");
     io.emit("message", {
       message: `${socket.chat_name} left the chat`,
       id: Math.random()
