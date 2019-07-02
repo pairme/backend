@@ -70,14 +70,19 @@ io.on("connection", function(socket) {
   disconnect function
   */
   socket.on("add connection", function(data) {
+    socket.chat_name = data;
     connections.push(socket);
+
     io.emit("connections count", connections.length);
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
   socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
-
+    io.emit("message", {
+      message: `${socket.chat_name} left the chat`,
+      id: Math.random()
+    });
     const newConnections = connections.filter(
       connection => connection != socket
     );
