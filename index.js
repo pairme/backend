@@ -30,9 +30,6 @@ let connections = [];
 init our needed stuff
 logic will get refactored later but for now
 */
-let availableRooms = [];
-let currentRoom;
-let counter = 0;
 
 app.get("/", (req, res) => {
   res.send("sanity check");
@@ -44,33 +41,23 @@ app.post("/getuserinfo", async (req, res) => {
     .then(resp => {
       res.json({ response: resp });
     })
-    .catch(err => res.json({ error: true }));
+    .catch(err => res.json({ err }));
 });
 
-io.on("connection", function (socket) {
+io.on("connection", function(socket) {
   // push the socket to the connections array!
   connections.push(socket);
   console.log(`socket connected! sockets remaining : ${connections.length}`);
-  //  can be recieved on the front end by running socket.on("news",function(data){})
-  if (availableRooms.length > 0) {
-    // there is a available room to join in pop it and join in it
-    const roomICanGoIn = availableRooms.pop();
-    console.log(roomICanGoIn, "there is a available room");
-    socket.join(roomICanGoIn);
-  } else {
-    // make a new room and join in it if the available rooms array is empty
-    currentRoom = `room${counter}`;
-    counter += 1;
-    availableRooms.push(currentRoom);
-    socket.join(currentRoom);
-  }
+  console.log(socket.id, "backendsocketid");
+  io.to(`${socket.id}`).emit("socketid", socket.id);
+  io.emit("connections count", connections.length());
   /*
     add chat
     functionality here
     before the
      disconnect function
    */
-  socket.on("disconnect", function () {
+  socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     const newConnections = connections.filter(
@@ -80,14 +67,10 @@ io.on("connection", function (socket) {
     connections = newConnections;
     console.log(`socket disconected sockets remaining : ${connections.length}`);
     // disconnect the room!!!
-    const newAvailableRooms = availableRooms.filter(
-      room => room != currentRoom
-    );
-    availableRooms = newAvailableRooms;
   });
-  socket.on('message', msg => {
-    io.emit('message', msg)
-  })
+  socket.on("message", msg => {
+    io.emit("message", msg);
+  });
 });
 
 /*
