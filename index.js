@@ -16,7 +16,8 @@ so we dont get the CORS block on the frontend
  */
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"]
+    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"],
+    credentials: true
   })
 );
 const port = process.env.PORT || 5000;
