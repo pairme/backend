@@ -1,7 +1,5 @@
 const app = require("express")();
 const cors = require("cors");
-const zoomOptions = require("./zoominit");
-const rp = require("request-promise");
 /*
  init socket io
  note that app is still our express server
@@ -28,16 +26,6 @@ logic will get refactored later but for now
 
 app.get("/", (req, res) => {
   res.send("sanity check");
-});
-app.post("/getuserinfo", async (req, res) => {
-  console.log(req.body.email, "sup dude");
-  const options = zoomOptions(req.body.email);
-  console.log(options);
-  rp(options)
-    .then(resp => {
-      res.json({ response: resp });
-    })
-    .catch(err => res.json({ err }));
 });
 app.post("/makepair", (req, res) => {
   /*
@@ -83,6 +71,7 @@ io.on("connection", function(socket) {
   */
   socket.on("add connection", function(data) {
     connections.push(socket);
+    io.emit("connections count", connections.length);
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
   socket.on("disconnect", function() {
