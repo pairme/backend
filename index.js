@@ -76,7 +76,7 @@ io.on("connection", function(socket) {
   console.log(`socket connected! sockets remaining : ${connections.length}`);
   console.log(socket.id, "backendsocketid");
   io.to(`${socket.id}`).emit("socketid", socket.id);
-  socket.emit("connections count", connections.length);
+  io.emit("connections count", connections.length);
   /*
     add chat
     functionality here
