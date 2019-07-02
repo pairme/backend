@@ -16,8 +16,7 @@ so we dont get the CORS block on the frontend
  */
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"],
-    credentials: true
+    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"]
   })
 );
 const port = process.env.PORT || 5000;
@@ -50,7 +49,7 @@ io.on("connection", function(socket) {
   console.log(`socket connected! sockets remaining : ${connections.length}`);
   console.log(socket.id, "backendsocketid");
   io.to(`${socket.id}`).emit("socketid", socket.id);
-  io.emit("connections count", connections.length());
+  io.emit("connections count", connections.length);
   /*
     add chat
     functionality here
