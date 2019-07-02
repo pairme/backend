@@ -77,11 +77,13 @@ io.on("connection", function(socket) {
   socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
+
     const newConnections = connections.filter(
       connection => connection != socket
     );
     // update the connections array with our new connections array!
     connections = newConnections;
+    io.emit("connections count", connections.length);
     console.log(`socket disconected sockets remaining : ${connections.length}`);
     // disconnect the room!!!
   });
