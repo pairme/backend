@@ -16,7 +16,7 @@ so we dont get the CORS block on the frontend
  */
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://pair-me.netlify.com/"],
     credentials: true
   })
 );
