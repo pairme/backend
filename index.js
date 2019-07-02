@@ -36,12 +36,11 @@ app.post("/makepair", (req, res) => {
   const [socket] = connections.filter(
     connection => connection.id == req.body.socketid
   );
-  connections = connections.filter(connection => connection != socket);
-  let otherSocket =
-    connections[Math.floor(Math.random() * connections.length) + 1];
-  const newconnections = connections.filter(
-    connection => connection != otherSocket
-  );
+  let otherSocket = connections.pop();
+  if (socket == otherSocket) {
+    otherSocket = connections.shift();
+  }
+  const newconnections = connections.filter(connection => connection != socket);
   connections = newconnections;
   const message = `Your pairing is ready * ${req.body.url} *`;
   const privatemessage = {
@@ -55,7 +54,7 @@ app.post("/makepair", (req, res) => {
   res.status(200).json({ success: true });
 });
 
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
   // push the socket to the connections array!
   io.to(`${socket.id}`).emit("socketid", socket.id);
   io.emit("connections count", connections.length);
@@ -65,7 +64,7 @@ io.on("connection", function(socket) {
   before the
   disconnect function
   */
-  socket.on("add connection", function(data) {
+  socket.on("add connection", function (data) {
     socket.chat_name = data;
     connections.push(socket);
 
@@ -76,7 +75,7 @@ io.on("connection", function(socket) {
     });
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
-  socket.on("disconnec", function() {
+  socket.on("disconnect", function () {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     console.log(socket.chat_name, "this is the chat name");
