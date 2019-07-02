@@ -44,19 +44,24 @@ app.post("/makepair", (req, res) => {
   req.body.url
   req.body.socketid
   */
-  const [socket] = connections.filter(connection => {
-    req.body.socketid == connection.id;
-  });
+  console.log("debugging", req.body.socketid);
+  console.log(connections[0].id);
+  const [socket] = connections.filter(
+    connection => connection.id == req.body.socketid
+  );
   let otherSocket = connections.pop();
   if (socket == otherSocket) {
     otherSocket = connections.shift();
   }
-  const privatemessage = `Your meeting is ready at ${req.body.url}`;
+  const privatemessage = `Your meeting is ready at ${
+    req.body.url
+  } * this message is only seen by you *`;
   io.to(`${socket.id}`).emit("private message", privatemessage);
   io.to(`${otherSocket.id}`).emit("private message", privatemessage);
   io.to(`${socket.id}`).emit("button disabled", true);
   io.to(`${otherSocket.id}`).emit("button disabled", true);
-  res.json({ success: true });
+  console.log("DIDNT MESS UP!!");
+  res.status(200).json({ success: true });
 });
 
 io.on("connection", function(socket) {
