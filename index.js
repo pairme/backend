@@ -53,11 +53,16 @@ app.post("/makepair", (req, res) => {
   if (socket == otherSocket) {
     otherSocket = connections.shift();
   }
-  const privatemessage = `Your meeting is ready at ${
+  const newconnections = connections.filter(connection => connection != socket);
+  connections = newconnections;
+  const message = `Your meeting is ready at ${
     req.body.url
   } * this message is only seen by you *`;
+  const privatemessage = {
+    message,
+    id: Math.random()
+  };
   io.to(`${socket.id}`).emit("private message", privatemessage);
-  io.to(`${otherSocket.id}`).emit("private message", privatemessage);
   io.to(`${socket.id}`).emit("button disabled", true);
   io.to(`${otherSocket.id}`).emit("button disabled", true);
   console.log("DIDNT MESS UP!!");
