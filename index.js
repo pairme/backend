@@ -46,15 +46,15 @@ app.post("/makepair", (req, res) => {
   const message = `Your pairing is ready with ${otherSocket.chat_name}* ${
     req.body.url
   } *`;
-  const otherPrivateMessage = `Your pairing is ready with ${
-    socket.chat_name
-  }* ${req.body.url} *`;
+  const otherMessage = `Your pairing is ready with ${socket.chat_name}* ${
+    req.body.url
+  } *`;
   const privatemessage = {
     message,
     id: Math.random()
   };
   const otherPrivateMessage = {
-    message: otherPrivateMessage,
+    message: otherMessage,
     id: Math.random()
   };
   io.to(`${socket.id}`).emit("private message", privatemessage);
