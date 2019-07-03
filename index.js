@@ -98,7 +98,8 @@ io.on("connection", function(socket) {
     socket.emit("typing users", whosTyping);
   });
   socket.on("user done typing", function(user) {
-    whosTyping.filter(personTyping => personTyping != user);
+    let newUsers = whosTyping.filter(personTyping => personTyping != user);
+    whosTyping = newUsers;
     //emit new users
     socket.emit("typing users", whosTyping);
   });
