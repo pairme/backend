@@ -19,6 +19,7 @@ const port = process.env.PORT || 5000;
  websocket pop/filterto get connections
   */
 let connections = [];
+let whosTyping = [];
 /*
 init our needed stuff
 logic will get refactored later but for now
@@ -83,6 +84,23 @@ io.on("connection", function(socket) {
       id: Math.random()
     });
     console.log(`socket connected! sockets remaining : ${connections.length}`);
+  });
+
+  /*
+  adding typing functionality
+  */
+
+  socket.on("user typing", function(user) {
+    if (!whosTyping.includes(user)) {
+      whosTyping.push(user);
+    }
+    //emit new users
+    socket.emit("typing users", whosTyping);
+  });
+  socket.on("user done typing", function(user) {
+    whosTyping.filter(personTyping => personTyping != user);
+    //emit new users
+    socket.emit("typing users", whosTyping);
   });
   socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
