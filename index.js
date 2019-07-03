@@ -42,19 +42,28 @@ app.post("/makepair", (req, res) => {
   }
   const newconnections = connections.filter(connection => connection != socket);
   connections = newconnections;
-  const message = `Your pairing is ready * ${req.body.url} *`;
+  const message = `Your pairing is ready with ${otherSocket.chat_name}* ${
+    req.body.url
+  } *`;
+  const otherPrivateMessage = `Your pairing is ready with ${
+    socket.chat_name
+  }* ${req.body.url} *`;
   const privatemessage = {
     message,
     id: Math.random()
   };
+  const otherPrivateMessage = {
+    message: otherPrivateMessage,
+    id: Math.random()
+  };
   io.to(`${socket.id}`).emit("private message", privatemessage);
-  io.to(`${otherSocket.id}`).emit("private message", privatemessage);
+  io.to(`${otherSocket.id}`).emit("private message", otherPrivateMessage);
   io.to(`${socket.id}`).emit("button disabled", true);
   io.to(`${otherSocket.id}`).emit("button disabled", true);
   res.status(200).json({ success: true });
 });
 
-io.on("connection", function (socket) {
+io.on("connection", function(socket) {
   // push the socket to the connections array!
   io.to(`${socket.id}`).emit("socketid", socket.id);
   io.emit("connections count", connections.length);
@@ -64,7 +73,7 @@ io.on("connection", function (socket) {
   before the
   disconnect function
   */
-  socket.on("add connection", function (data) {
+  socket.on("add connection", function(data) {
     socket.chat_name = data;
     connections.push(socket);
 
@@ -75,7 +84,7 @@ io.on("connection", function (socket) {
     });
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
-  socket.on("disconnect", function () {
+  socket.on("disconnect", function() {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     console.log(socket.chat_name, "this is the chat name");
