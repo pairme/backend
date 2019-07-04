@@ -73,6 +73,7 @@ io.on("connection", function(socket) {
   // push the socket to the connections array!
   io.to(`${socket.id}`).emit("socketid", socket.id);
   io.emit("connections count", connections.length);
+  io.emit("admins connected", admins.length);
   /*
   add chat
   functionality here
@@ -84,6 +85,7 @@ io.on("connection", function(socket) {
     connections.push(socket);
 
     io.emit("connections count", connections.length);
+    io.emit("admins connected", admins.length);
     io.emit("message", {
       message: `${socket.chat_name} entered the chat`,
       id: Math.random()
@@ -95,11 +97,13 @@ io.on("connection", function(socket) {
     socket.chat_name = "Staff: " + data;
     socket.pairme_admin = true;
     admins.push(socket);
+    io.emit("connections count", connections.length);
     io.emit("admins connected", admins.length);
     io.emit("message", {
       message: `${socket.chat_name} has entered the chat`,
       id: Math.random()
     });
+    io.to(`${socket.id}`).emit("button disabled", true);
   });
 
   /*
@@ -123,14 +127,19 @@ io.on("connection", function(socket) {
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     console.log(socket.chat_name, "this is the chat name");
-    io.emit("message", {
-      message: `${socket.chat_name} left the chat`,
-      id: Math.random()
-    });
+    if (!socket.chat_name) {
+      console.log("unregistered person left");
+    } else {
+      io.emit("message", {
+        message: `${socket.chat_name} left the chat`,
+        id: Math.random()
+      });
+    }
     if (socket.pairme_admin) {
       const newAdmins = admins.filter(connection => connection != socket);
       // update the connections array with our new connections array!
       admins = newAdmins;
+      io.emit("admins connected", admins.length);
     } else {
       const newConnections = connections.filter(
         connection => connection != socket
