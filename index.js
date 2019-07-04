@@ -37,6 +37,10 @@ app.post("/makepair", (req, res) => {
   const [socket] = connections.filter(
     connection => connection.id == req.body.socketid
   );
+  if (!socket) {
+    res.status(200).json({ success: true });
+    return;
+  }
   let otherSocket = connections.pop();
   if (socket == otherSocket) {
     otherSocket = connections.shift();
