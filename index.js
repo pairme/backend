@@ -18,8 +18,10 @@ const port = process.env.PORT || 5000;
  if something connects/disconnects  on our
  websocket pop/filterto get connections
   */
+let allConnections = [];
 let connections = [];
 let whosTyping = [];
+let admins = [];
 /*
 init our needed stuff
 logic will get refactored later but for now
@@ -72,6 +74,7 @@ io.on("connection", function(socket) {
   // push the socket to the connections array!
   io.to(`${socket.id}`).emit("socketid", socket.id);
   io.emit("connections count", connections.length);
+  io.emit("admins connected", admins.length);
   /*
   add chat
   functionality here
@@ -81,8 +84,9 @@ io.on("connection", function(socket) {
   socket.on("add connection", function(data) {
     socket.chat_name = data;
     connections.push(socket);
-
+    allConnections.push(socket);
     io.emit("connections count", connections.length);
+    io.emit("admins connected", admins.length);
     io.emit("message", {
       message: `${socket.chat_name} entered the chat`,
       id: Math.random()
@@ -90,9 +94,29 @@ io.on("connection", function(socket) {
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
 
+  socket.on("add admin", function(data) {
+    socket.chat_name = "Staff: " + data;
+    socket.pairme_admin = true;
+    admins.push(socket);
+    allConnections.push(socket);
+    io.emit("connections count", connections.length);
+    io.emit("admins connected", admins.length);
+    io.emit("message", {
+      message: `${socket.chat_name} has entered the chat`,
+      id: Math.random()
+    });
+    io.to(`${socket.id}`).emit("button disabled", true);
+  });
+
   /*
   adding typing functionality
   */
+  socket.on("all users", function(data) {
+    io.to(`${socket.id}`).emit(
+      "get all users",
+      allConnections.map(connections => connections.chat_name)
+    );
+  });
 
   socket.on("user typing", function(user) {
     if (!whosTyping.includes(user)) {
@@ -108,21 +132,39 @@ io.on("connection", function(socket) {
     socket.emit("typing users", whosTyping);
   });
   socket.on("disconnect", function() {
+    // console.log(allConnections.map(connection => connection.chat_name));
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
     console.log(socket.chat_name, "this is the chat name");
-    io.emit("message", {
-      message: `${socket.chat_name} left the chat`,
-      id: Math.random()
-    });
-    const newConnections = connections.filter(
+    if (!socket.chat_name) {
+      console.log("unregistered person left");
+    } else {
+      io.emit("message", {
+        message: `${socket.chat_name} left the chat`,
+        id: Math.random()
+      });
+    }
+    if (socket.pairme_admin) {
+      const newAdmins = admins.filter(connection => connection != socket);
+      // update the connections array with our new connections array!
+      admins = newAdmins;
+      io.emit("admins connected", admins.length);
+    } else {
+      const newConnections = connections.filter(
+        connection => connection != socket
+      );
+      connections = newConnections;
+      // update the connections array with our new connections array!
+      io.emit("connections count", connections.length);
+      console.log(
+        `socket disconected sockets remaining : ${connections.length}`
+      );
+    }
+    // disconnect the room!!!
+    const newAllConnections = allConnections.filter(
       connection => connection != socket
     );
-    // update the connections array with our new connections array!
-    connections = newConnections;
-    io.emit("connections count", connections.length);
-    console.log(`socket disconected sockets remaining : ${connections.length}`);
-    // disconnect the room!!!
+    allConnections = newAllConnections;
   });
   socket.on("message", msg => {
     io.emit("message", msg);
