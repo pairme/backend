@@ -51,10 +51,10 @@ app.post("/makepair", (req, res) => {
   connections = newconnections;
   const message = `Your pairing is ready with ${otherSocket.chat_name}* ${
     req.body.url
-  } *`;
+    } *`;
   const otherMessage = `Your pairing is ready with ${socket.chat_name}* ${
     req.body.url
-  } *`;
+    } *`;
   const privatemessage = {
     message,
     id: Math.random()
@@ -70,7 +70,7 @@ app.post("/makepair", (req, res) => {
   res.status(200).json({ success: true });
 });
 
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
   // push the socket to the connections array!
   io.to(`${socket.id}`).emit("socketid", socket.id);
   io.emit("connections count", connections.length);
@@ -81,7 +81,7 @@ io.on("connection", function(socket) {
   before the
   disconnect function
   */
-  socket.on("add connection", function(data) {
+  socket.on("add connection", function (data) {
     socket.chat_name = data;
     connections.push(socket);
     allConnections.push(socket);
@@ -94,7 +94,7 @@ io.on("connection", function(socket) {
     console.log(`socket connected! sockets remaining : ${connections.length}`);
   });
 
-  socket.on("add admin", function(data) {
+  socket.on("add admin", function (data) {
     socket.chat_name = "Staff: " + data;
     socket.pairme_admin = true;
     admins.push(socket);
@@ -111,27 +111,27 @@ io.on("connection", function(socket) {
   /*
   adding typing functionality
   */
-  socket.on("all users", function(data) {
+  socket.on("all users", function (data) {
     io.to(`${socket.id}`).emit(
       "get all users",
       allConnections.map(connections => connections.chat_name)
     );
   });
 
-  socket.on("user typing", function(user) {
+  socket.on("user typing", function (user) {
     if (!whosTyping.includes(user)) {
       whosTyping.push(user);
     }
     //emit new users
     socket.emit("typing users", whosTyping);
   });
-  socket.on("user done typing", function(user) {
+  socket.on("user done typing", function (user) {
     let newUsers = whosTyping.filter(personTyping => personTyping != user);
     whosTyping = newUsers;
     //emit new users
     socket.emit("typing users", whosTyping);
   });
-  socket.on("disconnect", function() {
+  socket.on("disconnect", function () {
     // console.log(allConnections.map(connection => connection.chat_name));
     // when you exit localhost:3000 this block of scope will run!!
     //filter it out
